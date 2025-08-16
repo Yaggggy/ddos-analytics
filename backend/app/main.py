@@ -1,15 +1,18 @@
-import asyncio
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from app.routers import ingest, events, ips
-from app.services.poller import poll_abuseipdb
+from app.ws import manager
 
-app = FastAPI()
+app = FastAPI(title="Global DDoS Analytics Platform")
 
 app.include_router(ingest.router)
 app.include_router(events.router)
 app.include_router(ips.router)
 
-# Start AbuseIPDB poller
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(poll_abuseipdb())
+@app.websocket("/ws")
+async def websocket_endpoint(ws: WebSocket):
+    await manager.connect(ws)
+    try:
+        while True:
+            await ws.receive_text()
+    except:
+        manager.disconnect(ws)

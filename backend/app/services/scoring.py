@@ -1,10 +1,11 @@
-def risk_score(abuse_confidence: float, requests: float, bytes: float):
-    score = abuse_confidence * 0.6 + requests * 0.3 + bytes * 0.1
-    level = "Low"
-    if score > 75:
-        level = "Critical"
+def risk_score(abuse_conf: float, requests: float, mb: float):
+    score = abuse_conf * 0.6 + requests * 0.3 + mb * 0.1
+    if score > 80:
+        level = "critical"
     elif score > 50:
-        level = "High"
-    elif score > 25:
-        level = "Medium"
+        level = "high"
+    elif score > 20:
+        level = "medium"
+    else:
+        level = "low"
     return score, level

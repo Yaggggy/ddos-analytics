@@ -1,35 +1,20 @@
-# # backend/app/models/incident.py
-# from sqlalchemy import Column, Integer, String, DateTime, func
-# from .base import Base
-
-# class Incident(Base):
-#     __tablename__ = "incidents"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     ip_address = Column(String, nullable=False)
-#     risk_score = Column(String, nullable=False)  # Low / Medium / High / Critical
-#     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-
 from sqlalchemy import Column, Integer, String, Float, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
-
-Base = declarative_base()
+from sqlalchemy.sql import func
+from .base import Base
 
 class Incident(Base):
     __tablename__ = "incidents"
 
     id = Column(Integer, primary_key=True, index=True)
     src_ip = Column(String, nullable=False)
-    dst = Column(String)
-    vector = Column(String)
-    bytes = Column(Float)
-    requests = Column(Integer)
+    dst = Column(String, nullable=True)
+    vector = Column(String, nullable=True)
+    bytes = Column(Integer, default=0)
+    requests = Column(Integer, default=0)
     score = Column(Float)
     level = Column(String)
-    country = Column(String)
-    lat = Column(Float)
-    lon = Column(Float)
-    details = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    country = Column(String, nullable=True)
+    lat = Column(Float, nullable=True)
+    lon = Column(Float, nullable=True)
+    details = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -1,4 +1,4 @@
-from app.models.incident import Incident
+from .incident import Incident
 
 
 
