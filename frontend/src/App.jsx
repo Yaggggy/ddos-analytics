@@ -1,44 +1,40 @@
-import React, { useEffect, useState } from "react";
-import GlobeComponent from "./components/Globe";
-import StatsPanel from "./components/StatsPanel";
-import { getStats } from "./api";
+import { useEffect, useRef, useState } from "react";
+import Globe from "react-globe.gl";
+import axios from "axios";
 
-function App() {
+export default function App() {
+  const globeEl = useRef();
   const [attacks, setAttacks] = useState([]);
-  const [stats, setStats] = useState({});
 
+  // Poll backend every 3 seconds
   useEffect(() => {
-    const ws = new WebSocket("ws://127.0.0.1:8000/ws");
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setAttacks((prev) => [...prev, data].slice(-100));
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:8000/events/latest");
+        setAttacks(res.data);
+      } catch (err) {
+        console.error("Error fetching attacks:", err);
+      }
     };
 
-    ws.onopen = () => console.log("WebSocket connected");
-    ws.onclose = () => console.log("WebSocket disconnected");
-
-    return () => ws.close();
-  }, []);
-
-  useEffect(() => {
-    getStats().then((res) => setStats(res));
+    fetchData(); // initial fetch
+    const interval = setInterval(fetchData, 3000); // repeat every 3s
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <div
-      style={{ display: "flex", height: "100vh", backgroundColor: "#0a0a0a" }}
-    >
-      <div style={{ flex: 1 }}>
-        <GlobeComponent attacks={attacks} />
-      </div>
-      <div
-        style={{ width: "300px", backgroundColor: "#111", overflowY: "auto" }}
-      >
-        <StatsPanel stats={stats} />
-      </div>
+    <div style={{ width: "100vw", height: "100vh", backgroundColor: "#111" }}>
+      <Globe
+        ref={globeEl}
+        globeImageUrl="//unpkg.com/three-globe/example/img/earth-dark.jpg"
+        backgroundColor="black"
+        pointsData={attacks}
+        pointLat={(d) => d.lat}
+        pointLng={(d) => d.lon}
+        pointColor={() => "red"}
+        pointAltitude={(d) => Math.min(0.02 + d.requests * 0.0001, 0.1)}
+        pointRadius={0.4}
+      />
     </div>
   );
 }
-
-export default App;
