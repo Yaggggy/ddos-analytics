@@ -1,7 +1,8 @@
 # DDoS Analytics Platform
 
 
-<img width="1919" height="870" alt="image" src="https://github.com/user-attachments/assets/99121254-d089-4610-9b48-0f216454ef3f" />
+<img width="1919" height="870" alt="Screenshot 2025-08-18 221310-2cb4caf5-26b0-49f8-8e98-c2e0c0f43aba" src="https://github.com/user-attachments/assets/9d493781-84c6-4ba2-bd45-10d449dbb019" />
+
 
 
 
