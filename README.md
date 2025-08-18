@@ -1,7 +1,8 @@
 # DDoS Analytics Platform
 
 
-<img width="1919" height="873" alt="image" src="https://github.com/user-attachments/assets/c629c647-257a-4820-8ad2-f454ab8c9e94" />
+<img width="1919" height="870" alt="image" src="https://github.com/user-attachments/assets/99121254-d089-4610-9b48-0f216454ef3f" />
+
 
 
 > **Note:** The backend is no longer deployed. This repository contains both the original backend code (for reference) and the currently deployed frontend. Only the frontend is live; backend APIs and live data are disabled.
