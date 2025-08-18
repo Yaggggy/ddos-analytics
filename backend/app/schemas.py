@@ -1,30 +1,20 @@
 from pydantic import BaseModel
-from typing import Optional, List
-
-class IncidentIn(BaseModel):
-    src_ip: str
-    dst: Optional[str] = None
-    vector: Optional[str] = None
-    bytes: Optional[int] = 0
-    requests: Optional[int] = 0
+from typing import Optional
 
 class IncidentOut(BaseModel):
     id: int
     src_ip: str
-    dst: Optional[str]
-    country: Optional[str]
-    lat: Optional[float]
-    lon: Optional[float]
-    vector: Optional[str]
-    bytes: Optional[int]
-    requests: Optional[int]
+    dst: str
+    vector: str
+    bytes: float
+    requests: int
     score: float
     level: str
-    details: Optional[str]
+    country: str
+    lat: float
+    lon: float
+    details: str
     created_at: str
 
-class StatsOut(BaseModel):
-    total: int
-    by_country: List[dict]
-    top_ips: List[dict]
-    trend: List[dict]
+    class Config:
+        orm_mode = True

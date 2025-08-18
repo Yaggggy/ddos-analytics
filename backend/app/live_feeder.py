@@ -1,28 +1,69 @@
-import asyncio
-import httpx
+import os
 import random
+import time
+from datetime import datetime, timezone
+from dotenv import load_dotenv
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from models.incident import Incident
+from services.geoip import lookup
 
-URL = "http://127.0.0.1:8000/ingest"  # your FastAPI ingest endpoint
+load_dotenv()
 
-ips = ["8.8.8.8", "1.1.1.1", "52.23.45.67", "185.199.108.153", "66.249.66.1"]
-vectors = ["UDP", "TCP", "SYN", "ICMP"]
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-async def send_incident():
-    async with httpx.AsyncClient() as client:
+# Configure SQLAlchemy engine
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(bind=engine)
+
+# Example list of random source IPs
+IPS = [
+    "8.8.8.8",
+    "185.199.108.153",
+    "45.77.225.18",
+    "142.250.72.206",
+    "104.244.42.1"
+]
+
+VECTORS = ["TCP", "UDP", "SYN", "ACK"]
+
+def generate_random_attack():
+    src_ip = random.choice(IPS)
+    dst_ip = "your-server-ip"
+    vector = random.choice(VECTORS)
+    bytes_sent = random.randint(1000, 10000)
+    requests = random.randint(10, 100)
+    geo = lookup(src_ip) or {}
+    return {
+        "src_ip": src_ip,
+        "dst": dst_ip,
+        "vector": vector,
+        "bytes": bytes_sent,
+        "requests": requests,
+        "country": geo.get("country"),
+        "lat": geo.get("lat"),
+        "lon": geo.get("lon"),
+        "details": "simulated attack",
+        "created_at": datetime.now(timezone.utc)
+    }
+
+def main():
+    db = SessionLocal()
+    try:
         while True:
-            data = {
-                "src_ip": random.choice(ips),
-                "dst": "your-server-ip",
-                "vector": random.choice(vectors),
-                "bytes": random.randint(1000, 10000),
-                "requests": random.randint(10, 100)
-            }
-            try:
-                resp = await client.post(URL, json=data)
-                print(resp.json())
-            except Exception as e:
-                print("Error:", e)
-            await asyncio.sleep(2)  # adjust frequency
+            data = generate_random_attack()
+            incident = Incident(**data)
+            db.add(incident)
+            db.commit()
+            db.refresh(incident)
+            print(f"Inserted attack: {incident.src_ip} -> {incident.dst} at {incident.created_at}")
+            time.sleep(3)  # simulate continuous feed
+    finally:
+        db.close()
 
 if __name__ == "__main__":
-    asyncio.run(send_incident())
+    main()
